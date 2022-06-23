@@ -1,0 +1,12 @@
+{"function":"GLTProduct","level":"error","msg":"missing destination name description in *[]dto.GetProducts","package":"repository.product","params":"_","time":"2022-06-15T00:11:06+04:30"}
+{"function":"product/GLTProduct","level":"error","msg":"missing destination name description in *[]dto.GetProducts","package":"http","params":"_","time":"2022-06-15T00:11:06+04:30"}
+{"function":"GLTProduct","level":"error","msg":"missing destination name description in *[]dto.GetProducts","package":"repository.product","params":"_","time":"2022-06-15T00:12:00+04:30"}
+{"function":"product/GLTProduct","level":"error","msg":"missing destination name description in *[]dto.GetProducts","package":"http","params":"_","time":"2022-06-15T00:12:00+04:30"}
+{"function":"GLTProduct","level":"error","msg":"missing destination name description in *[]dto.GetProducts","package":"repository.product","params":"_","time":"2022-06-15T00:13:28+04:30"}
+{"function":"product/GLTProduct","level":"error","msg":"missing destination name description in *[]dto.GetProducts","package":"http","params":"_","time":"2022-06-15T00:13:28+04:30"}
+{"function":"GLTProduct","level":"error","msg":"missing destination name description in *[]dto.GetProducts","package":"repository.product","params":"_","time":"2022-06-15T00:14:21+04:30"}
+{"function":"product/GLTProduct","level":"error","msg":"missing destination name description in *[]dto.GetProducts","package":"http","params":"_","time":"2022-06-15T00:14:21+04:30"}
+{"function":"GLTProduct","level":"error","msg":"missing destination name discountstatus in *[]dto.GetProducts","package":"repository.product","params":"_","time":"2022-06-15T00:35:44+04:30"}
+{"function":"product/GLTProduct","level":"error","msg":"missing destination name discountstatus in *[]dto.GetProducts","package":"http","params":"_","time":"2022-06-15T00:35:44+04:30"}
+{"function":"GLTProduct","level":"error","msg":"missing destination name discountstatus in *[]dto.GetProducts","package":"repository.product","params":"_","time":"2022-06-15T00:35:45+04:30"}
+{"function":"product/GLTProduct","level":"error","msg":"missing destination name discountstatus in *[]dto.GetProducts","package":"http","params":"_","time":"2022-06-15T00:35:45+04:30"}

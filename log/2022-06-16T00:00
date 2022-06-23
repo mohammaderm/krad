@@ -1,0 +1,10 @@
+{"function":"GetByID","level":"error","msg":"Error 1146: Table 'krad.PRODUCT' doesn't exist","package":"repository.product","params":"_","time":"2022-06-16T22:30:29+04:30"}
+{"function":"GetByID","level":"error","msg":"Error 1146: Table 'krad.PRODUCT' doesn't exist","package":"repository.product","params":"_","time":"2022-06-16T22:39:38+04:30"}
+{"function":"GetByID","level":"error","msg":"sql: no rows in result set","package":"repository.product","params":"_","time":"2022-06-16T22:45:31+04:30"}
+{"function":"GetByID","level":"error","msg":"sql: no rows in result set","package":"repository.productssssssssssssss","params":"_","time":"2022-06-16T22:46:45+04:30"}
+{"function":"GetByID","level":"error","msg":"sql: no rows in result set","package":"repository.product","params":"_","time":"2022-06-16T22:49:38+04:30"}
+{"function":"GetByID","level":"error","msg":"sql: no rows in result set","package":"repository.product","params":"_","time":"2022-06-16T22:50:16+04:30"}
+{"function":"GetByID","level":"error","msg":"sql: no rows in result set","package":"repository.product","params":"_","time":"2022-06-16T22:53:05+04:30"}
+{"function":"main","level":"panic","msg":"sql: no rows in result set:product not found","package":"main","params":"_","time":"2022-06-16T22:53:05+04:30"}
+{"function":"GetByID","level":"error","msg":"sql: no rows in result set","package":"repository.product","params":"_","time":"2022-06-16T22:54:29+04:30"}
+{"function":"GetByID","level":"error","msg":"sql: no rows in result set","package":"repository.product","params":"_","time":"2022-06-16T23:19:29+04:30"}
