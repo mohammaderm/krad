@@ -4,7 +4,11 @@ go 1.17
 
 require github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 
-require github.com/gorilla/mux v1.8.0 // indirect
+require (
+	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/jalaali/go-jalaali v0.0.0-20210801064154-80525e88d958 // indirect
+	github.com/yaa110/go-persian-calendar v1.0.2 // indirect
+)
 
 require (
 	github.com/go-sql-driver/mysql v1.6.0

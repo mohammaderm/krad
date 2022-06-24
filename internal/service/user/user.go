@@ -6,6 +6,7 @@ import (
 	"github.com/mohammaderm/krad/log"
 
 	dto "github.com/mohammaderm/krad/internal/dto/user"
+	"github.com/mohammaderm/krad/internal/models"
 	"github.com/mohammaderm/krad/internal/repository/user"
 )
 
@@ -15,9 +16,13 @@ type (
 		userRepository user.UserRepository
 	}
 	UserServiceContracts interface {
+		// user services
 		Create_User(ctx context.Context, req dto.CreateUserReq) error
 		GetbyEmail_User(ctx context.Context, req dto.GetByEmailReq) (dto.GetByEmailRes, error)
 		GetByUserName_User(ctx context.Context, req dto.GetByUsernameReq) (dto.GetByUsernameRes, error)
+
+		// comment services
+		CreateComment(ctx context.Context, req dto.CreateCommentReq) error
 	}
 )
 
@@ -54,4 +59,17 @@ func (s *Service) GetByUserName_User(ctx context.Context, req dto.GetByUsernameR
 	return dto.GetByUsernameRes{
 		User: user,
 	}, nil
+}
+
+func (s *Service) CreateComment(ctx context.Context, req dto.CreateCommentReq) error {
+	err := s.userRepository.CreateComment(ctx, models.CreateComment{
+		UserId:    req.UserId,
+		ProductId: req.ProductId,
+		Createdat: req.Createdat,
+		Text:      req.Text,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

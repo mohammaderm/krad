@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/mohammaderm/krad/internal/models"
+import (
+	"time"
+
+	"github.com/mohammaderm/krad/internal/models"
+)
 
 type (
 	CreateUserReq struct {
@@ -19,5 +23,11 @@ type (
 	}
 	GetByUsernameRes struct {
 		User *models.User `json:"user"`
+	}
+	CreateCommentReq struct {
+		UserId    int       `json:"userid" db:"userid"`
+		ProductId int       `json:"productid" db:"productid"`
+		Createdat time.Time `json:"createdat" db:"createdat"`
+		Text      string    `json:"text" db:"text"`
 	}
 )

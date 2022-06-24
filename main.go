@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	"github.com/mohammaderm/krad/config"
-	producthandler "github.com/mohammaderm/krad/internal/presentation/http"
+	handler "github.com/mohammaderm/krad/internal/presentation/http"
 	"github.com/mohammaderm/krad/internal/presentation/http/authentication"
 	productrepository "github.com/mohammaderm/krad/internal/repository/product"
 	userrepository "github.com/mohammaderm/krad/internal/repository/user"
@@ -68,18 +68,26 @@ func main() {
 	// Product
 	productRepository := productrepository.NewRepository(db, logger)
 	productService := productservice.NewService(logger, productRepository)
-	productHandler := producthandler.NewProductHanlder(logger, productService)
+	productHandler := handler.NewProductHanlder(logger, productService)
 
 	// User Auth
 	userRepository := userrepository.NewRepository(db, logger)
 	userService := userservice.NewService(logger, userRepository)
-	AuthHandler := authentication.NewAuthHanlder(logger, userService)
+	authHandler := authentication.NewAuthHanlder(logger, userService)
+
+	// user comment
+	commentHandler := handler.NewCommentHandler(logger, userService)
 
 	r := mux.NewRouter()
 	route := r.PathPrefix("/api/v1/").Subrouter()
 
-	route.HandleFunc("/auth/login", AuthHandler.Login).Methods("Post")
-	route.HandleFunc("/auth/register", AuthHandler.Register).Methods("Post")
+	user_route := r.PathPrefix("/api/v1/user").Subrouter()
+	user_route.Use(authentication.Auth)
+
+	route.HandleFunc("/auth/login", authHandler.Login).Methods("Post")
+	route.HandleFunc("/auth/register", authHandler.Register).Methods("Post")
+
+	user_route.HandleFunc("/sendcomment", commentHandler.SendComment).Methods("Post")
 
 	route.HandleFunc("/product/lastproduct", productHandler.GLTProduct).Methods("GET")
 	route.HandleFunc("/product/{id}", productHandler.GetByID).Methods("GET")

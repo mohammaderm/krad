@@ -19,4 +19,11 @@ type (
 		ProductId uint      `json:"productid" db:"productid"`
 		CreatedAt time.Time `db:"createdat"`
 	}
+
+	CreateComment struct {
+		UserId    int       `json:"userid" db:"userid"`
+		ProductId int       `json:"productid" db:"productid"`
+		Createdat time.Time `json:"createdat" db:"createdat"`
+		Text      string    `json:"text" db:"text"`
+	}
 )

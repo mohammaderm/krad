@@ -9,9 +9,11 @@ import (
 )
 
 var (
-	CreateUser        = "INSERT INTO user (username, email, password) VALUES (?,?,?)"
-	GetUserbyEmail    = "SELECT * FROM user WHERE email=?"
-	GetUserbyusername = "SELECT * FROM user WHERE username=?"
+	CreateUser        = "INSERT INTO user (username, email, password) VALUES (?,?,?);"
+	GetUserbyEmail    = "SELECT * FROM user WHERE email=?;"
+	GetUserbyusername = "SELECT * FROM user WHERE username=?;"
+
+	CreateComment = "INSERT INTO comment (userid, productid, text, createdat) VALUES (?,?,?,?);"
 )
 
 type (
@@ -21,9 +23,13 @@ type (
 	}
 
 	UserRepository interface {
+		// user interfaces
 		Create_User(ctx context.Context, email, username, password string) error
 		GetbyEmail_User(ctx context.Context, email string) (*models.User, error)
 		GetByUserName_User(ctx context.Context, username string) (*models.User, error)
+
+		// comment interfaces
+		CreateComment(ctx context.Context, comment models.CreateComment) error
 	}
 )
 
@@ -58,4 +64,12 @@ func (r *repository) GetByUserName_User(ctx context.Context, username string) (*
 		return nil, err
 	}
 	return &result, nil
+}
+
+func (r *repository) CreateComment(ctx context.Context, comment models.CreateComment) error {
+	_, err := r.db.ExecContext(ctx, CreateComment, comment.UserId, comment.ProductId, comment.Text, comment.Createdat)
+	if err != nil {
+		return err
+	}
+	return nil
 }
