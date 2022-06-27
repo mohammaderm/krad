@@ -1,7 +1,7 @@
-package authentication
+package http
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -21,6 +21,7 @@ type (
 	AuthtHandler struct {
 		logger      log.Logger
 		userService user.UserServiceContracts
+		HandlerHelper
 	}
 	AuthHandlerContract interface {
 		Login(w http.ResponseWriter, r *http.Request)
@@ -37,66 +38,71 @@ func NewAuthHanlder(logger log.Logger, userservice user.UserServiceContracts) Au
 	return &AuthtHandler{
 		logger:      logger,
 		userService: userservice,
+		HandlerHelper: HandlerHelper{
+			logger: logger,
+		},
 	}
 }
 
 func (a *AuthtHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var userreq dto.CreateUserReq
-	err := json.NewDecoder(r.Body).Decode(&userreq)
+	err := a.readJSON(w, r, &userreq)
 	if err != nil {
-		http.Error(w, "can not parse values.", http.StatusBadRequest)
+		a.errorJSON(w, errors.New("can not parse values"), http.StatusBadRequest)
 		return
 	}
 	hashpass, err := bcrypt.GenerateFromPassword([]byte(userreq.Password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(w, "internal server.", http.StatusInternalServerError)
+		a.errorJSON(w, errors.New("internal server error"), http.StatusInternalServerError)
 		return
 	}
-
 	if err := a.userService.Create_User(r.Context(), dto.CreateUserReq{
 		UserName: userreq.UserName,
 		Email:    userreq.Email,
 		Password: string(hashpass),
 	}); err != nil {
-		http.Error(w, "internal server,", http.StatusInternalServerError)
+		a.errorJSON(w, errors.New("can not create user"), http.StatusInternalServerError)
 		return
 	}
-
 	defer r.Body.Close()
-	w.WriteHeader(http.StatusCreated)
-	resp := make(map[string]string)
-	resp["message"] = "Sucsefully created User."
-	jsonresp, _ := json.Marshal(resp)
-	w.Write(jsonresp)
+	payload := jsonResponse{
+		Error:   false,
+		Message: "user saved succesfully",
+		Data:    userreq,
+	}
+	a.writeJSON(w, http.StatusOK, payload)
 
 }
 
 func (a *AuthtHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var user dto.UserLogin
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err := a.readJSON(w, r, &user)
 	if err != nil {
-		http.Error(w, "can not parse values.", http.StatusBadRequest)
+		a.errorJSON(w, errors.New("can not parse values"), http.StatusBadRequest)
 		return
 	}
 	founduser, err := a.userService.GetbyEmail_User(r.Context(), dto.GetByEmailReq{Email: user.Email})
 	if err != nil {
-		http.Error(w, "can not found user registered with this email.", http.StatusForbidden)
+		a.errorJSON(w, errors.New("invalid credential"), http.StatusForbidden)
 		return
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(founduser.User.Password), []byte(user.Password))
 	if err != nil {
-		http.Error(w, "Wrong password!", http.StatusForbidden)
+		a.errorJSON(w, errors.New("wrong password"), http.StatusForbidden)
 		return
 	}
 	pairtoken, err := generatepairtoken(founduser.User.Email, founduser.User.Id)
 	if err != nil {
-		http.Error(w, "internal server.", http.StatusInternalServerError)
+		a.errorJSON(w, errors.New("internal server error"), http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
-	w.WriteHeader(http.StatusOK)
-	jsonresp, _ := json.Marshal(pairtoken)
-	w.Write(jsonresp)
+	payload := jsonResponse{
+		Error:   false,
+		Message: "Logged in user",
+		Data:    pairtoken,
+	}
+	a.writeJSON(w, http.StatusAccepted, payload)
 }
 
 func generatepairtoken(email string, id uint) (map[string]string, error) {

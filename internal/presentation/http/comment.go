@@ -1,7 +1,7 @@
 package http
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -15,6 +15,7 @@ type (
 	CommentHandler struct {
 		logger      log.Logger
 		UserService user.UserServiceContracts
+		HandlerHelper
 	}
 
 	CommentHandlerContracts interface {
@@ -24,32 +25,35 @@ type (
 
 func NewCommentHandler(logger log.Logger, userService user.UserServiceContracts) CommentHandlerContracts {
 	return &CommentHandler{
-		logger:      logger,
-		UserService: userService,
+		logger:        logger,
+		UserService:   userService,
+		HandlerHelper: HandlerHelper{logger: logger},
 	}
 
 }
 
 func (c *CommentHandler) SendComment(w http.ResponseWriter, r *http.Request) {
 	var comment dto.SendComment
-	err := json.NewDecoder(r.Body).Decode(&comment)
+	err := c.readJSON(w, r, &comment)
 	if err != nil {
-		http.Error(w, "can not parse values.", http.StatusBadRequest)
+		c.errorJSON(w, errors.New("can not parse values"), http.StatusNotFound)
 		return
 	}
-	err = c.UserService.CreateComment(r.Context(), dto.CreateCommentReq{
+	comm := dto.CreateCommentReq{
 		UserId:    comment.UserId,
 		ProductId: comment.ProductId,
 		Createdat: time.Now(),
 		Text:      comment.Text,
-	})
+	}
+	err = c.UserService.CreateComment(r.Context(), comm)
 	if err != nil {
-		http.Error(w, "cant save comment.", http.StatusInternalServerError)
+		c.errorJSON(w, errors.New("cant save comment"), http.StatusInternalServerError)
 	}
 	defer r.Body.Close()
-	w.WriteHeader(http.StatusCreated)
-	resp := make(map[string]string)
-	resp["message"] = "Sucsefully saved comment."
-	jsonresp, _ := json.Marshal(resp)
-	w.Write(jsonresp)
+	payload := jsonResponse{
+		Error:   false,
+		Message: "your comment saved succesfully",
+		Data:    comm,
+	}
+	c.writeJSON(w, http.StatusOK, payload)
 }

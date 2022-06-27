@@ -1,7 +1,7 @@
 package http
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -15,6 +15,7 @@ type (
 	ProductHandler struct {
 		logger         log.Logger
 		productService product.ProductServiceContract
+		HandlerHelper
 	}
 	ProductHandlerContract interface {
 		GLTProduct(w http.ResponseWriter, r *http.Request)
@@ -27,13 +28,14 @@ func NewProductHanlder(logger log.Logger, productservice product.ProductServiceC
 	return &ProductHandler{
 		logger:         logger,
 		productService: productservice,
+		HandlerHelper:  HandlerHelper{logger: logger},
 	}
 }
 
 func (h *ProductHandler) GLTProduct(w http.ResponseWriter, r *http.Request) {
 	result, err := h.productService.GLTProduct(r.Context())
 	if err != nil {
-		http.Error(w, "failed to handle request.", http.StatusNotFound)
+		h.errorJSON(w, errors.New("failed to handle request"), http.StatusNotFound)
 		h.logger.Error(&log.Field{
 			Package:  "http",
 			Function: "product/GLTProduct",
@@ -42,28 +44,32 @@ func (h *ProductHandler) GLTProduct(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	jsonresp, _ := json.Marshal(result)
-	w.Write(jsonresp)
+	payload := jsonResponse{
+		Error:   false,
+		Message: "succesfully",
+		Data:    result,
+	}
+	h.writeJSON(w, http.StatusOK, payload)
 }
 
 func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	idint, err := strconv.Atoi(id)
 	if err != nil {
-		http.Error(w, "failed to handle request.", http.StatusBadRequest)
+		h.errorJSON(w, errors.New("failed to handle request"), http.StatusBadRequest)
 		return
 	}
 	result, err := h.productService.GetByID(r.Context(), dto.FindProductReq{Id: idint})
 	if err != nil {
-		http.Error(w, "product not found.", http.StatusNotFound)
+		h.errorJSON(w, errors.New("can not found product"), http.StatusNotFound)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	jsonresp, _ := json.Marshal(result.Product)
-	w.Write(jsonresp)
+	payload := jsonResponse{
+		Error:   false,
+		Message: "succesfully",
+		Data:    result,
+	}
+	h.writeJSON(w, http.StatusOK, payload)
 }
 
 func (h *ProductHandler) GetByCategoryId(w http.ResponseWriter, r *http.Request) {
@@ -73,12 +79,12 @@ func (h *ProductHandler) GetByCategoryId(w http.ResponseWriter, r *http.Request)
 	filters := r.URL.Query()["filters"]
 	categoryidint, err := strconv.Atoi(categoryid)
 	if err != nil {
-		http.Error(w, "failed to handle request.", http.StatusBadRequest)
+		h.errorJSON(w, errors.New("failed to handle request"), http.StatusBadRequest)
 		return
 	}
 	offsetint, err := strconv.Atoi(offset)
 	if err != nil {
-		http.Error(w, "failed to handle request.", http.StatusBadRequest)
+		h.errorJSON(w, errors.New("failed to handle request"), http.StatusBadRequest)
 		return
 	}
 	result, err := h.productService.GetByCategoryId(r.Context(), dto.FindByCategoryIdReq{
@@ -88,11 +94,13 @@ func (h *ProductHandler) GetByCategoryId(w http.ResponseWriter, r *http.Request)
 		Order:  "p2." + order,
 	})
 	if err != nil {
-		http.Error(w, "failed to handle request.", http.StatusNotFound)
+		h.errorJSON(w, errors.New("can not found product"), http.StatusNotFound)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	jsonresp, _ := json.Marshal(result.Products)
-	w.Write(jsonresp)
+	payload := jsonResponse{
+		Error:   false,
+		Message: "succesfully",
+		Data:    result,
+	}
+	h.writeJSON(w, http.StatusOK, payload)
 }
