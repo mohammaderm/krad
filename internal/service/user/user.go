@@ -23,6 +23,7 @@ type (
 
 		// comment services
 		CreateComment(ctx context.Context, req dto.CreateCommentReq) error
+		GetAllComments(ctx context.Context, req dto.GetAllCommentsReq) (dto.GetAllCommentsRes, error)
 	}
 )
 
@@ -72,4 +73,14 @@ func (s *Service) CreateComment(ctx context.Context, req dto.CreateCommentReq) e
 		return err
 	}
 	return nil
+}
+
+func (s *Service) GetAllComments(ctx context.Context, req dto.GetAllCommentsReq) (dto.GetAllCommentsRes, error) {
+	commnets, err := s.userRepository.GetAllComments(ctx, req.ProductId, req.Offset)
+	if err != nil {
+		return dto.GetAllCommentsRes{}, err
+	}
+	return dto.GetAllCommentsRes{
+		Commnets: commnets,
+	}, nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
+	dto "github.com/mohammaderm/krad/internal/dto/user"
 	"github.com/mohammaderm/krad/internal/models"
 	"github.com/mohammaderm/krad/log"
 )
@@ -14,6 +15,8 @@ var (
 	GetUserbyusername = "SELECT * FROM user WHERE username=?;"
 
 	CreateComment = "INSERT INTO comment (userid, productid, text, createdat) VALUES (?,?,?,?);"
+	GetAllComment = "SELECT * FROM comment WHERE productid = ? LIMIT ? OFFSET ?;"
+	limit         = 5
 )
 
 type (
@@ -30,6 +33,7 @@ type (
 
 		// comment interfaces
 		CreateComment(ctx context.Context, comment models.CreateComment) error
+		GetAllComments(ctx context.Context, productid, offset int) (*[]dto.GetAllComment, error)
 	}
 )
 
@@ -72,4 +76,13 @@ func (r *repository) CreateComment(ctx context.Context, comment models.CreateCom
 		return err
 	}
 	return nil
+}
+
+func (r *repository) GetAllComments(ctx context.Context, productid, offset int) (*[]dto.GetAllComment, error) {
+	var result []dto.GetAllComment
+	err := r.db.SelectContext(ctx, &result, GetAllComment, productid, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }

@@ -3,8 +3,10 @@ package http
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/mohammaderm/krad/log"
 
 	dto "github.com/mohammaderm/krad/internal/dto/user"
@@ -20,6 +22,7 @@ type (
 
 	CommentHandlerContracts interface {
 		SendComment(w http.ResponseWriter, r *http.Request)
+		GetAllComents(w http.ResponseWriter, r *http.Request)
 	}
 )
 
@@ -30,6 +33,35 @@ func NewCommentHandler(logger log.Logger, userService user.UserServiceContracts)
 		HandlerHelper: HandlerHelper{logger: logger},
 	}
 
+}
+
+func (c *CommentHandler) GetAllComents(w http.ResponseWriter, r *http.Request) {
+	productid := mux.Vars(r)["productid"]
+	offset := r.URL.Query().Get("offset")
+	id, err := strconv.Atoi(productid)
+	if err != nil {
+		c.errorJSON(w, errors.New("failed to handle request"), http.StatusBadRequest)
+		return
+	}
+	offsetint, err := strconv.Atoi(offset)
+	if err != nil {
+		c.errorJSON(w, errors.New("failed to handle request"), http.StatusBadRequest)
+		return
+	}
+	result, err := c.UserService.GetAllComments(r.Context(), dto.GetAllCommentsReq{
+		ProductId: id,
+		Offset:    offsetint,
+	})
+	if err != nil {
+		c.errorJSON(w, errors.New("can not found any product"), http.StatusNotFound)
+		return
+	}
+	payload := jsonResponse{
+		Error:   false,
+		Message: "succesfully",
+		Data:    result,
+	}
+	c.writeJSON(w, http.StatusOK, payload)
 }
 
 func (c *CommentHandler) SendComment(w http.ResponseWriter, r *http.Request) {

@@ -30,4 +30,11 @@ type (
 		Createdat time.Time `json:"createdat" db:"createdat"`
 		Text      string    `json:"text" db:"text"`
 	}
+	GetAllCommentsRes struct {
+		Commnets *[]GetAllComment `json:"comments"`
+	}
+	GetAllCommentsReq struct {
+		ProductId int `json:"productid" db:"productid"`
+		Offset    int `json:"offset"`
+	}
 )

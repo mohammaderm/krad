@@ -9,7 +9,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/mohammaderm/krad/config"
 	handler "github.com/mohammaderm/krad/internal/presentation/http"
-	"github.com/mohammaderm/krad/internal/presentation/http/authentication"
 	productrepository "github.com/mohammaderm/krad/internal/repository/product"
 	userrepository "github.com/mohammaderm/krad/internal/repository/user"
 	productservice "github.com/mohammaderm/krad/internal/service/product"
@@ -73,7 +72,7 @@ func main() {
 	// User Auth
 	userRepository := userrepository.NewRepository(db, logger)
 	userService := userservice.NewService(logger, userRepository)
-	authHandler := authentication.NewAuthHanlder(logger, userService)
+	authHandler := handler.NewAuthHanlder(logger, userService)
 
 	// user comment
 	commentHandler := handler.NewCommentHandler(logger, userService)
@@ -82,7 +81,7 @@ func main() {
 	route := r.PathPrefix("/api/v1/").Subrouter()
 
 	user_route := r.PathPrefix("/api/v1/user").Subrouter()
-	user_route.Use(authentication.Auth)
+	user_route.Use(handler.Auth)
 
 	route.HandleFunc("/auth/login", authHandler.Login).Methods("Post")
 	route.HandleFunc("/auth/register", authHandler.Register).Methods("Post")
@@ -90,6 +89,8 @@ func main() {
 	user_route.HandleFunc("/sendcomment", commentHandler.SendComment).Methods("Post")
 
 	route.HandleFunc("/product/lastproduct", productHandler.GLTProduct).Methods("GET")
+	route.HandleFunc("/product/comments", commentHandler.GetAllComents).Methods("GET")
+
 	route.HandleFunc("/product/{id}", productHandler.GetByID).Methods("GET")
 	route.HandleFunc("/product/category={categoryid}/", productHandler.GetByCategoryId).Methods("GET")
 
